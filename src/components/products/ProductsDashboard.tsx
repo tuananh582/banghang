@@ -1,22 +1,15 @@
 "use client";
 
 import {
-  Boxes,
-  Clock3,
   LogOut,
   PackagePlus,
   Search,
-  Sparkles,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useDeferredValue, useEffect, useState } from "react";
 
-import {
-  formatProductPrice,
-  formatRelativeDate,
-  type Product,
-} from "@/src/domain/product";
+import type { Product } from "@/src/domain/product";
 import {
   getCurrentSession,
   signOutCurrentUser,
@@ -24,7 +17,6 @@ import {
 } from "@/src/lib/repositories/auth.repository";
 import {
   deleteProduct,
-  getAverageProductPrice,
   listProducts,
 } from "@/src/lib/repositories/products.repository";
 import { ProductsCollection } from "@/src/components/products/ProductsCollection";
@@ -179,9 +171,6 @@ export function ProductsDashboard({
     );
   }
 
-  const averagePrice = getAverageProductPrice(products);
-  const latestUpdatedAt = products[0]?.updatedAt ?? null;
-
   return (
     <main className="relative min-h-screen overflow-hidden px-4 py-6 sm:px-6 lg:px-8">
       <div className="grain-overlay absolute inset-0 opacity-35" />
@@ -219,38 +208,6 @@ export function ProductsDashboard({
             </div>
           </div>
         </header>
-
-        <section className="grid gap-4 md:grid-cols-3">
-          {[
-            {
-              icon: Boxes,
-              label: "Tổng sản phẩm",
-              value: products.length.toString(),
-            },
-            {
-              icon: Sparkles,
-              label: "Giá trung bình",
-              value: formatProductPrice(averagePrice),
-            },
-            {
-              icon: Clock3,
-              label: "Cập nhật gần nhất",
-              value: latestUpdatedAt
-                ? formatRelativeDate(latestUpdatedAt)
-                : "Chưa có dữ liệu",
-            },
-          ].map((item) => (
-            <article key={item.label} className="surface-panel p-5">
-              <item.icon className="h-5 w-5 text-clay" />
-              <p className="mt-5 text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-                {item.label}
-              </p>
-              <p className="mt-3 text-3xl font-semibold text-forest">
-                {item.value}
-              </p>
-            </article>
-          ))}
-        </section>
 
         <section className="surface-panel px-5 py-5 sm:px-6">
           <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
