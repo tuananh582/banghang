@@ -1,26 +1,86 @@
 @import "tailwindcss";
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #f5efe4;
+  --foreground: #18231d;
+  --paper: #fffaf2;
+  --forest: #14362f;
+  --forest-soft: #31564d;
+  --clay: #d87a50;
+  --gold: #b8893d;
+  --muted: #6d7067;
+  --line: rgba(24, 35, 29, 0.12);
+  --shadow: 0 24px 70px rgba(20, 54, 47, 0.12);
 }
 
 @theme inline {
   --color-background: var(--background);
+  --color-clay: var(--clay);
+  --color-forest: var(--forest);
+  --color-forest-soft: var(--forest-soft);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-gold: var(--gold);
+  --color-line: var(--line);
+  --color-muted: var(--muted);
+  --color-paper: var(--paper);
+  --font-sans: var(--font-body);
+  --font-display: var(--font-display);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--background);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-image:
+    radial-gradient(circle at top left, rgba(216, 122, 80, 0.16), transparent 28%),
+    radial-gradient(circle at right center, rgba(184, 137, 61, 0.18), transparent 22%),
+    linear-gradient(135deg, rgba(255, 250, 242, 0.75), rgba(245, 239, 228, 0.82));
+  font-family: var(--font-body), sans-serif;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: rgba(216, 122, 80, 0.22);
+}
+
+.surface-panel {
+  @apply rounded-[30px] border border-line bg-white/78 backdrop-blur-xl;
+  box-shadow: var(--shadow);
+}
+
+.display-title {
+  font-family: var(--font-display), serif;
+}
+
+.grain-overlay {
+  pointer-events: none;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.18)),
+    radial-gradient(circle at 1px 1px, rgba(20, 54, 47, 0.08) 1px, transparent 0);
+  background-size: auto, 18px 18px;
+}
+
+.status-pill {
+  @apply inline-flex items-center rounded-full border px-3 py-1 text-xs font-semibold tracking-[0.18em] uppercase;
+}
+
+.field-shell {
+  @apply rounded-[22px] border border-line bg-white/70 px-4 py-3 transition focus-within:border-forest focus-within:bg-white focus-within:shadow-[0_0_0_4px_rgba(20,54,47,0.08)];
 }
