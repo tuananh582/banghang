@@ -65,7 +65,7 @@ Chi tiết endpoint và schema: xem `doc/02-Architecture/API/` và `doc/02-Archi
 
 ## 5. Yêu cầu chức năng (FR)
 
-Mỗi FR dùng **SHALL**; có **Tiêu chí chấp nhận (AC)** và **V&V** (Kiểm thử/API/Kiểm tra).
+Mỗi FR dùng **SHALL**; có **Tiêu chí chấp nhận (AC)** và **V&V** (Kiểm thử/API/Kiểm tra).zzzz
 
 ### REQ-AUTH-001 — Đăng nhập
 **Phát biểu**: Hệ thống SHALL cho phép người dùng đăng nhập bằng email/mật khẩu (hoặc phương thức Supabase Auth được bật trong dự án) và nhận session hợp lệ.  
