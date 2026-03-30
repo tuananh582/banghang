@@ -77,6 +77,16 @@ export async function listProducts(searchQuery: string) {
   return response.data.map(mapProductRow);
 }
 
+export async function getProductById(id: string) {
+  const response = await invokeProductsFunction<ProductsFunctionResponse>({
+    method: "GET",
+    searchParams: { id },
+  });
+
+  const product = response.data[0];
+  return product ? mapProductRow(product) : null;
+}
+
 export async function createProduct(input: ProductInput) {
   const response = await invokeProductsFunction<ProductMutationResponse>({
     body: input,

@@ -3,43 +3,30 @@
 import {
   Boxes,
   LogOut,
+  PackagePlus,
   PackageSearch,
   Search,
   Sparkles,
 } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import {
-  startTransition,
-  useDeferredValue,
-  useEffect,
-  useState,
-} from "react";
+import { useDeferredValue, useEffect, useState } from "react";
 
 import {
   formatProductPrice,
   type Product,
 } from "@/src/domain/product";
 import {
-  emptyProductFormValues,
-  formatCurrencyInput,
-  parseProductForm,
-  type ProductFormErrors,
-  type ProductFormValues,
-} from "@/src/domain/product.validation";
-import {
   getCurrentSession,
   signOutCurrentUser,
   subscribeToAuthChanges,
 } from "@/src/lib/repositories/auth.repository";
 import {
-  createProduct,
   deleteProduct,
   listProducts,
   sumCatalogValue,
   sumInventory,
-  updateProduct,
 } from "@/src/lib/repositories/products.repository";
-import { ProductEditorPanel } from "@/src/components/products/ProductEditorPanel";
 import { ProductsCollection } from "@/src/components/products/ProductsCollection";
 
 function getErrorMessage(error: unknown) {
@@ -48,29 +35,37 @@ function getErrorMessage(error: unknown) {
     : "Có lỗi xảy ra khi làm việc với sản phẩm.";
 }
 
-export function ProductsDashboard() {
+function getStatusMessage(status: string | null) {
+  switch (status) {
+    case "created":
+      return "Đã tạo sản phẩm thành công.";
+    case "updated":
+      return "Đã cập nhật sản phẩm thành công.";
+    default:
+      return null;
+  }
+}
+
+export function ProductsDashboard({
+  initialStatus,
+}: {
+  initialStatus?: string | null;
+}) {
   const router = useRouter();
-  const [activeProductId, setActiveProductId] = useState<string | null>(null);
   const [deletingProductId, setDeletingProductId] = useState<string | null>(
     null,
   );
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
-  const [formErrors, setFormErrors] = useState<ProductFormErrors>({});
-  const [formValues, setFormValues] = useState<ProductFormValues>(
-    emptyProductFormValues,
-  );
   const [isBooting, setIsBooting] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isSessionReady, setIsSessionReady] = useState(false);
   const [isSigningOut, setIsSigningOut] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [products, setProducts] = useState<Product[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [userEmail, setUserEmail] = useState("");
-  const [isSessionReady, setIsSessionReady] = useState(false);
 
   const deferredSearchQuery = useDeferredValue(searchQuery);
-  const isEditing = activeProductId !== null;
 
   async function loadProducts(keyword: string) {
     setIsRefreshing(true);
@@ -130,71 +125,13 @@ export function ProductsDashboard() {
     void loadProducts(deferredSearchQuery);
   }, [deferredSearchQuery, isSessionReady]);
 
-  function resetEditor() {
-    setActiveProductId(null);
-    setFormErrors({});
-    setFormValues(emptyProductFormValues);
-  }
-
-  function handleFieldChange(
-    field: keyof ProductFormValues,
-    value: ProductFormValues[keyof ProductFormValues],
-  ) {
-    setFormValues((current) => ({
-      ...current,
-      [field]: value,
-    }));
-    setFormErrors((current) => ({
-      ...current,
-      [field]: undefined,
-      form: undefined,
-    }));
-  }
-
-  function handleEditProduct(product: Product) {
-    setActiveProductId(product.id);
-    setFormErrors({});
-    setFormValues({
-      description: product.description,
-      inventoryCount: String(product.inventoryCount),
-      isActive: product.isActive,
-      productCode: product.productCode,
-      productName: product.productName,
-      unitPrice: formatCurrencyInput(String(product.unitPrice)),
-    });
-  }
-
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setStatusMessage(null);
-
-    const parsed = parseProductForm(formValues);
-    if (!parsed.data) {
-      setFormErrors(parsed.errors);
-      return;
+  useEffect(() => {
+    const nextStatusMessage = getStatusMessage(initialStatus ?? null);
+    if (nextStatusMessage) {
+      setStatusMessage(nextStatusMessage);
+      setErrorMessage(null);
     }
-
-    setIsSubmitting(true);
-
-    try {
-      if (activeProductId) {
-        await updateProduct(activeProductId, parsed.data);
-        setStatusMessage("Đã cập nhật sản phẩm thành công.");
-      } else {
-        await createProduct(parsed.data);
-        setStatusMessage("Đã tạo sản phẩm thành công.");
-      }
-
-      resetEditor();
-      await loadProducts(searchQuery);
-    } catch (error) {
-      setFormErrors({
-        form: getErrorMessage(error),
-      });
-    } finally {
-      setIsSubmitting(false);
-    }
-  }
+  }, [initialStatus]);
 
   async function handleDelete(product: Product) {
     const confirmed = window.confirm(
@@ -210,11 +147,6 @@ export function ProductsDashboard() {
 
     try {
       await deleteProduct(product.id);
-
-      if (activeProductId === product.id) {
-        resetEditor();
-      }
-
       setStatusMessage("Đã xóa sản phẩm thành công.");
       await loadProducts(searchQuery);
     } catch (error) {
@@ -271,13 +203,13 @@ export function ProductsDashboard() {
               </p>
             </div>
 
-            <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+            <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
               <div className="rounded-full border border-line bg-white/65 px-4 py-3 text-sm text-muted">
                 Đăng nhập bởi{" "}
                 <span className="font-semibold text-forest">{userEmail}</span>
               </div>
               <button
-                className="inline-flex items-center gap-2 rounded-full bg-forest px-5 py-3 text-sm font-semibold text-paper transition hover:bg-forest-soft disabled:cursor-not-allowed disabled:opacity-60"
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-forest px-5 py-3 text-sm font-semibold text-paper transition hover:bg-forest-soft disabled:cursor-not-allowed disabled:opacity-60"
                 disabled={isSigningOut}
                 onClick={handleSignOut}
                 type="button"
@@ -323,63 +255,62 @@ export function ProductsDashboard() {
           ))}
         </section>
 
-        <section className="grid gap-6 xl:grid-cols-[1.3fr_0.7fr]">
-          <div className="space-y-4">
-            <div className="surface-panel p-4 sm:p-5">
-              <label className="block">
-                <span className="mb-3 block text-xs font-semibold uppercase tracking-[0.22em] text-muted">
-                  Tìm kiếm nhanh
-                </span>
-                <span className="field-shell flex items-center gap-3">
-                  <Search className="h-4 w-4 text-muted" />
-                  <input
-                    className="w-full bg-transparent outline-none placeholder:text-muted/65"
-                    onChange={(event) => {
-                      const value = event.target.value;
-                      startTransition(() => {
-                        setSearchQuery(value);
-                      });
-                    }}
-                    placeholder="Tìm theo mã hoặc tên"
-                    value={searchQuery}
-                  />
-                </span>
-              </label>
+        <section className="surface-panel px-5 py-5 sm:px-6">
+          <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+            <div className="w-full max-w-3xl">
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-clay">
+                Tìm kiếm nhanh
+              </p>
+              <h2 className="display-title mt-3 text-3xl font-semibold text-forest">
+                Danh sách gọn cho desktop, thao tác rõ trên mobile
+              </h2>
+              <p className="mt-3 text-sm leading-7 text-muted">
+                Tách riêng màn hình thêm và sửa sản phẩm để danh sách chính thoáng hơn,
+                dễ dùng hơn trên điện thoại.
+              </p>
             </div>
 
-            {statusMessage ? (
-              <div className="rounded-[24px] border border-forest/15 bg-forest/8 px-4 py-4 text-sm text-forest">
-                {statusMessage}
-              </div>
-            ) : null}
-
-            {errorMessage ? (
-              <div className="rounded-[24px] border border-clay/20 bg-clay/8 px-4 py-4 text-sm text-clay">
-                {errorMessage}
-              </div>
-            ) : null}
-
-            <ProductsCollection
-              activeProductId={activeProductId}
-              deletingProductId={deletingProductId}
-              isRefreshing={isRefreshing}
-              onDelete={handleDelete}
-              onEdit={handleEditProduct}
-              products={products}
-              searchQuery={searchQuery}
-            />
+            <div className="flex w-full flex-col gap-3 lg:max-w-xl">
+              <label className="field-shell flex w-full items-center gap-3">
+                <Search className="h-4 w-4 text-muted" />
+                <input
+                  className="w-full bg-transparent outline-none placeholder:text-muted/60"
+                  enterKeyHint="search"
+                  onChange={(event) => setSearchQuery(event.target.value)}
+                  placeholder="Tìm theo mã hoặc tên"
+                  value={searchQuery}
+                />
+              </label>
+              <Link
+                className="inline-flex items-center justify-center gap-2 rounded-full border border-gold/30 bg-gold px-5 py-4 text-sm font-semibold text-foreground shadow-[0_18px_36px_rgba(184,137,61,0.24)] transition hover:bg-[#c99849]"
+                href="/products/new"
+              >
+                <PackagePlus className="h-4 w-4" />
+                Thêm sản phẩm
+              </Link>
+            </div>
           </div>
 
-          <ProductEditorPanel
-            errors={formErrors}
-            isEditing={isEditing}
-            isSubmitting={isSubmitting}
-            onCancel={resetEditor}
-            onChange={handleFieldChange}
-            onSubmit={handleSubmit}
-            values={formValues}
-          />
+          {errorMessage ? (
+            <p className="mt-4 rounded-[20px] border border-clay/20 bg-clay/8 px-4 py-3 text-sm text-clay">
+              {errorMessage}
+            </p>
+          ) : null}
+
+          {statusMessage ? (
+            <p className="mt-4 rounded-[20px] border border-forest/15 bg-forest/8 px-4 py-3 text-sm text-forest">
+              {statusMessage}
+            </p>
+          ) : null}
         </section>
+
+        <ProductsCollection
+          deletingProductId={deletingProductId}
+          isRefreshing={isRefreshing}
+          onDelete={handleDelete}
+          products={products}
+          searchQuery={searchQuery}
+        />
       </div>
     </main>
   );

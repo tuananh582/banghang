@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { PencilLine, Trash2 } from "lucide-react";
 
 import {
@@ -9,34 +10,31 @@ import {
 } from "@/src/domain/product";
 
 type ProductsCollectionProps = {
-  activeProductId: string | null;
   deletingProductId: string | null;
   isRefreshing: boolean;
   onDelete: (product: Product) => void;
-  onEdit: (product: Product) => void;
   products: Product[];
   searchQuery: string;
 };
 
 function ProductActions({
+  editHref,
   isDeleting,
   onDelete,
-  onEdit,
 }: {
+  editHref: string;
   isDeleting: boolean;
   onDelete: () => void;
-  onEdit: () => void;
 }) {
   return (
     <div className="flex items-center justify-end gap-2">
-      <button
+      <Link
         aria-label="Sửa"
         className="rounded-full border border-line p-2 text-muted transition hover:border-forest hover:text-forest"
-        onClick={onEdit}
-        type="button"
+        href={editHref}
       >
         <PencilLine className="h-4 w-4" />
-      </button>
+      </Link>
       <button
         aria-label="Xóa"
         className="rounded-full border border-line p-2 text-muted transition hover:border-clay hover:text-clay"
@@ -51,11 +49,9 @@ function ProductActions({
 }
 
 export function ProductsCollection({
-  activeProductId,
   deletingProductId,
   isRefreshing,
   onDelete,
-  onEdit,
   products,
   searchQuery,
 }: ProductsCollectionProps) {
@@ -73,6 +69,14 @@ export function ProductsCollection({
             ? "Không tìm thấy sản phẩm theo mã hoặc tên đã nhập."
             : "Tạo sản phẩm đầu tiên để bắt đầu quản lý tồn kho và giá bán."}
         </p>
+        {!searchQuery ? (
+          <Link
+            className="mt-6 inline-flex items-center justify-center rounded-full bg-forest px-5 py-3 text-sm font-semibold text-paper transition hover:bg-forest-soft"
+            href="/products/new"
+          >
+            Thêm sản phẩm đầu tiên
+          </Link>
+        ) : null}
       </div>
     );
   }
@@ -93,14 +97,10 @@ export function ProductsCollection({
           </thead>
           <tbody>
             {products.map((product) => {
-              const isActiveRow = product.id === activeProductId;
               const isDeleting = deletingProductId === product.id;
 
               return (
-                <tr
-                  key={product.id}
-                  className={isActiveRow ? "bg-forest/6" : "bg-white"}
-                >
+                <tr key={product.id} className="bg-white transition hover:bg-forest/4">
                   <td className="border-t border-line px-5 py-4 align-top">
                     <div className="font-semibold text-forest">
                       {product.productCode}
@@ -134,9 +134,9 @@ export function ProductsCollection({
                   </td>
                   <td className="border-t border-line px-5 py-4 align-top">
                     <ProductActions
+                      editHref={`/products/${product.id}/edit`}
                       isDeleting={isDeleting}
                       onDelete={() => onDelete(product)}
-                      onEdit={() => onEdit(product)}
                     />
                   </td>
                 </tr>
@@ -149,15 +149,9 @@ export function ProductsCollection({
       <div className="grid gap-4 lg:hidden">
         {products.map((product) => {
           const isDeleting = deletingProductId === product.id;
-          const isSelected = activeProductId === product.id;
 
           return (
-            <article
-              key={product.id}
-              className={`surface-panel p-5 ${
-                isSelected ? "border-forest/30 bg-white" : ""
-              }`}
-            >
+            <article key={product.id} className="surface-panel p-5">
               <div className="flex items-start justify-between gap-4">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-[0.2em] text-clay">
@@ -168,9 +162,9 @@ export function ProductsCollection({
                   </h3>
                 </div>
                 <ProductActions
+                  editHref={`/products/${product.id}/edit`}
                   isDeleting={isDeleting}
                   onDelete={() => onDelete(product)}
-                  onEdit={() => onEdit(product)}
                 />
               </div>
               <p className="mt-4 text-sm leading-7 text-muted">
@@ -194,6 +188,9 @@ export function ProductsCollection({
                   </p>
                 </div>
               </div>
+              <p className="mt-4 text-xs uppercase tracking-[0.18em] text-muted">
+                Cập nhật {formatRelativeDate(product.updatedAt)}
+              </p>
             </article>
           );
         })}

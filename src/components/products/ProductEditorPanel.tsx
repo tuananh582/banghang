@@ -7,6 +7,7 @@ import type {
 import { formatCurrencyInput } from "@/src/domain/product.validation";
 
 type ProductEditorPanelProps = {
+  cancelLabel?: string;
   errors: ProductFormErrors;
   isEditing: boolean;
   isSubmitting: boolean;
@@ -28,6 +29,7 @@ function FieldMessage({ message }: { message?: string }) {
 }
 
 export function ProductEditorPanel({
+  cancelLabel = "Quay lại danh sách",
   errors,
   isEditing,
   isSubmitting,
@@ -37,8 +39,8 @@ export function ProductEditorPanel({
   values,
 }: ProductEditorPanelProps) {
   return (
-    <aside className="surface-panel h-fit p-5 sm:p-6">
-      <div className="flex items-start justify-between gap-4">
+    <section className="surface-panel h-fit p-5 sm:p-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.22em] text-clay">
             Editor
@@ -47,15 +49,13 @@ export function ProductEditorPanel({
             {isEditing ? "Cập nhật sản phẩm" : "Tạo sản phẩm mới"}
           </h2>
         </div>
-        {isEditing ? (
-          <button
-            className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-muted transition hover:border-forest hover:text-forest"
-            onClick={onCancel}
-            type="button"
-          >
-            Hủy chỉnh sửa
-          </button>
-        ) : null}
+        <button
+          className="rounded-full border border-line px-4 py-2 text-sm font-semibold text-muted transition hover:border-forest hover:text-forest"
+          onClick={onCancel}
+          type="button"
+        >
+          {cancelLabel}
+        </button>
       </div>
 
       <form className="mt-6 space-y-4" onSubmit={onSubmit}>
@@ -209,6 +209,6 @@ export function ProductEditorPanel({
               : "Tạo sản phẩm"}
         </button>
       </form>
-    </aside>
+    </section>
   );
 }
