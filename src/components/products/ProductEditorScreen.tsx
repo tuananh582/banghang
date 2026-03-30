@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowLeft, PackagePlus, PencilLine, ShieldCheck } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { startTransition, useEffect, useState } from "react";
@@ -37,9 +37,6 @@ function getErrorMessage(error: unknown) {
 
 function mapProductToFormValues(product: Product): ProductFormValues {
   return {
-    description: product.description,
-    inventoryCount: String(product.inventoryCount),
-    isActive: product.isActive,
     productCode: product.productCode,
     productName: product.productName,
     unitPrice: formatCurrencyInput(String(product.unitPrice)),
@@ -58,7 +55,6 @@ export function ProductEditorScreen({
   const [isBooting, setIsBooting] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
-  const [userEmail, setUserEmail] = useState("");
 
   const isEditing = mode === "edit";
 
@@ -77,8 +73,6 @@ export function ProductEditorScreen({
         if (!isMounted) {
           return;
         }
-
-        setUserEmail(session.user.email ?? "");
 
         if (isEditing) {
           if (!productId) {
@@ -117,8 +111,6 @@ export function ProductEditorScreen({
         router.replace("/login");
         return;
       }
-
-      setUserEmail(session.user.email ?? "");
     });
 
     return () => {
@@ -190,8 +182,8 @@ export function ProductEditorScreen({
 
   const title = isEditing ? "Chỉnh sửa sản phẩm" : "Thêm sản phẩm mới";
   const description = isEditing
-    ? "Cập nhật catalog trên một màn hình riêng để thao tác gọn hơn khi dùng điện thoại."
-    : "Tạo sản phẩm trên một form riêng, tập trung vào nhập liệu và tránh chật chội trên trang danh sách.";
+    ? "Màn hình chỉnh sửa hiện chỉ tập trung vào mã, tên và giá bán để thao tác nhanh hơn."
+    : "Màn hình tạo mới chỉ giữ 3 trường cốt lõi: mã sản phẩm, tên sản phẩm và giá bán.";
 
   return (
     <main className="relative min-h-screen overflow-hidden px-4 py-6 sm:px-6 lg:px-8">
@@ -199,7 +191,7 @@ export function ProductEditorScreen({
       <div className="mx-auto max-w-6xl space-y-6">
         <header className="surface-panel relative overflow-hidden px-5 py-5 sm:px-6 sm:py-6">
           <div className="absolute inset-y-0 right-0 hidden w-64 bg-gradient-to-l from-clay/12 via-gold/10 to-transparent lg:block" />
-          <div className="relative flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+          <div className="relative">
             <div>
               <Link
                 className="inline-flex items-center gap-2 rounded-full border border-line bg-white/70 px-4 py-2 text-sm font-semibold text-forest transition hover:border-forest"
@@ -216,15 +208,6 @@ export function ProductEditorScreen({
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
                 {description}
-              </p>
-            </div>
-
-            <div className="rounded-[26px] border border-line bg-white/75 px-5 py-4">
-              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-muted">
-                Tài khoản đang thao tác
-              </p>
-              <p className="mt-2 break-all text-sm font-semibold text-forest">
-                {userEmail}
               </p>
             </div>
           </div>
@@ -244,7 +227,7 @@ export function ProductEditorScreen({
             </Link>
           </section>
         ) : (
-          <div className="grid gap-6 xl:grid-cols-[minmax(0,0.72fr)_minmax(280px,0.28fr)]">
+          <div className="mx-auto max-w-3xl">
             <ProductEditorPanel
               cancelLabel="Quay lại danh sách"
               errors={formErrors}
@@ -255,54 +238,6 @@ export function ProductEditorScreen({
               onSubmit={handleSubmit}
               values={formValues}
             />
-
-            <aside className="surface-panel h-fit p-5 sm:p-6">
-              <div className="flex items-center gap-3">
-                <span className="rounded-full bg-forest/10 p-3 text-forest">
-                  {isEditing ? (
-                    <PencilLine className="h-5 w-5" />
-                  ) : (
-                    <PackagePlus className="h-5 w-5" />
-                  )}
-                </span>
-                <div>
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-clay">
-                    Trải nghiệm mobile-first
-                  </p>
-                  <p className="mt-1 text-sm font-semibold text-forest">
-                    Form tách riêng để nhập nhanh và tránh chật chội trên điện thoại.
-                  </p>
-                </div>
-              </div>
-
-              <div className="mt-6 rounded-[24px] border border-line bg-white/65 p-4">
-                <div className="flex items-start gap-3">
-                  <span className="rounded-full bg-forest/10 p-2 text-forest">
-                    <ShieldCheck className="h-4 w-4" />
-                  </span>
-                  <div>
-                    <p className="text-sm font-semibold text-forest">
-                      Dữ liệu đang ghi trực tiếp lên Supabase
-                    </p>
-                    <p className="mt-2 text-sm leading-7 text-muted">
-                      Mọi thao tác tạo và cập nhật đều đi qua Edge Function `products`
-                      rồi đồng bộ về danh mục dùng chung.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="mt-4 rounded-[24px] border border-line bg-background/70 p-4">
-                <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted">
-                  Gợi ý nhập liệu
-                </p>
-                <ul className="mt-3 space-y-3 text-sm leading-7 text-foreground">
-                  <li>Dùng mã sản phẩm ngắn, dễ tìm bằng ô search.</li>
-                  <li>Giá bán tự format theo chuẩn tiền Việt ngay trong lúc nhập.</li>
-                  <li>Ô tồn kho để trống khi tạo mới, tránh nhập nhầm số 0 mặc định.</li>
-                </ul>
-              </div>
-            </aside>
           </div>
         )}
       </div>

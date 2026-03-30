@@ -4,10 +4,7 @@ export type ProductRow = Tables<"products">;
 
 export type Product = {
   createdAt: string;
-  description: string;
   id: string;
-  inventoryCount: number;
-  isActive: boolean;
   productCode: string;
   productName: string;
   unitPrice: number;
@@ -17,10 +14,7 @@ export type Product = {
 export function mapProductRow(row: ProductRow): Product {
   return {
     createdAt: row.created_at,
-    description: row.description ?? "",
     id: row.id,
-    inventoryCount: row.inventory_count,
-    isActive: row.is_active,
     productCode: row.product_code,
     productName: row.product_name,
     unitPrice: Number(row.unit_price),

@@ -2,9 +2,9 @@
 
 import {
   Boxes,
+  Clock3,
   LogOut,
   PackagePlus,
-  PackageSearch,
   Search,
   Sparkles,
 } from "lucide-react";
@@ -14,6 +14,7 @@ import { useDeferredValue, useEffect, useState } from "react";
 
 import {
   formatProductPrice,
+  formatRelativeDate,
   type Product,
 } from "@/src/domain/product";
 import {
@@ -23,9 +24,8 @@ import {
 } from "@/src/lib/repositories/auth.repository";
 import {
   deleteProduct,
+  getAverageProductPrice,
   listProducts,
-  sumCatalogValue,
-  sumInventory,
 } from "@/src/lib/repositories/products.repository";
 import { ProductsCollection } from "@/src/components/products/ProductsCollection";
 
@@ -179,9 +179,8 @@ export function ProductsDashboard({
     );
   }
 
-  const catalogValue = sumCatalogValue(products);
-  const inventoryCount = sumInventory(products);
-  const activeProductsCount = products.filter((product) => product.isActive).length;
+  const averagePrice = getAverageProductPrice(products);
+  const latestUpdatedAt = products[0]?.updatedAt ?? null;
 
   return (
     <main className="relative min-h-screen overflow-hidden px-4 py-6 sm:px-6 lg:px-8">
@@ -198,8 +197,8 @@ export function ProductsDashboard({
                 Control room cho đội bán hàng
               </h1>
               <p className="mt-3 max-w-2xl text-sm leading-7 text-muted">
-                Theo dõi giá bán, tồn kho và chỉnh sửa catalog sản phẩm dùng
-                chung cho toàn bộ tài khoản đã đăng nhập.
+                Quản lý danh mục gọn hơn với đúng 3 dữ liệu cốt lõi: mã sản phẩm,
+                tên sản phẩm và giá bán.
               </p>
             </div>
 
@@ -229,15 +228,16 @@ export function ProductsDashboard({
               value: products.length.toString(),
             },
             {
-              icon: PackageSearch,
-              label: "Đang kinh doanh",
-              value: activeProductsCount.toString(),
+              icon: Sparkles,
+              label: "Giá trung bình",
+              value: formatProductPrice(averagePrice),
             },
             {
-              icon: Sparkles,
-              label: "Giá trị tồn kho",
-              value: formatProductPrice(catalogValue),
-              note: `${inventoryCount} đơn vị`,
+              icon: Clock3,
+              label: "Cập nhật gần nhất",
+              value: latestUpdatedAt
+                ? formatRelativeDate(latestUpdatedAt)
+                : "Chưa có dữ liệu",
             },
           ].map((item) => (
             <article key={item.label} className="surface-panel p-5">
@@ -248,9 +248,6 @@ export function ProductsDashboard({
               <p className="mt-3 text-3xl font-semibold text-forest">
                 {item.value}
               </p>
-              {item.note ? (
-                <p className="mt-2 text-sm text-muted">{item.note}</p>
-              ) : null}
             </article>
           ))}
         </section>
@@ -262,11 +259,10 @@ export function ProductsDashboard({
                 Tìm kiếm nhanh
               </p>
               <h2 className="display-title mt-3 text-3xl font-semibold text-forest">
-                Danh sách gọn cho desktop, thao tác rõ trên mobile
+                Tra cứu theo mã hoặc tên sản phẩm
               </h2>
               <p className="mt-3 text-sm leading-7 text-muted">
-                Tách riêng màn hình thêm và sửa sản phẩm để danh sách chính thoáng hơn,
-                dễ dùng hơn trên điện thoại.
+                Danh sách và form đều đã được giản lược theo đúng 3 trường chính.
               </p>
             </div>
 
@@ -277,7 +273,7 @@ export function ProductsDashboard({
                   className="w-full bg-transparent outline-none placeholder:text-muted/60"
                   enterKeyHint="search"
                   onChange={(event) => setSearchQuery(event.target.value)}
-                  placeholder="Tìm theo mã hoặc tên"
+                  placeholder="Tìm theo mã hoặc tên sản phẩm"
                   value={searchQuery}
                 />
               </label>

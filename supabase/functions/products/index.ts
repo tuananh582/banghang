@@ -3,10 +3,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 type ProductPayload = {
   productCode?: string;
   productName?: string;
-  description?: string | null;
   unitPrice?: number;
-  inventoryCount?: number;
-  isActive?: boolean;
 };
 
 const corsHeaders = {
@@ -21,10 +18,7 @@ const productColumns = `
   id,
   product_code,
   product_name,
-  description,
   unit_price,
-  inventory_count,
-  is_active,
   created_at,
   updated_at
 `;
@@ -48,15 +42,9 @@ function errorResponse(status: number, message: string, details?: string) {
   );
 }
 
-function escapeLikeValue(value: string) {
-  return value.replace(/[%_,]/g, "\\$&");
-}
-
 function parsePayload(body: ProductPayload, isPatch = false) {
   const normalizedCode = body.productCode?.trim();
   const normalizedName = body.productName?.trim();
-  const normalizedDescription =
-    typeof body.description === "string" ? body.description.trim() : body.description;
 
   if (!isPatch || body.productCode !== undefined) {
     if (!normalizedCode) {
@@ -70,18 +58,9 @@ function parsePayload(body: ProductPayload, isPatch = false) {
     }
   }
 
-  if (body.unitPrice !== undefined) {
-    if (!Number.isFinite(body.unitPrice) || body.unitPrice < 0) {
+  if (!isPatch || body.unitPrice !== undefined) {
+    if (body.unitPrice === undefined || !Number.isFinite(body.unitPrice) || body.unitPrice < 0) {
       return { error: "Giá sản phẩm phải là số không âm." };
-    }
-  }
-
-  if (body.inventoryCount !== undefined) {
-    if (
-      !Number.isInteger(body.inventoryCount) ||
-      body.inventoryCount < 0
-    ) {
-      return { error: "Tồn kho phải là số nguyên không âm." };
     }
   }
 
@@ -89,10 +68,7 @@ function parsePayload(body: ProductPayload, isPatch = false) {
     value: {
       product_code: normalizedCode,
       product_name: normalizedName,
-      description: normalizedDescription || null,
       unit_price: body.unitPrice,
-      inventory_count: body.inventoryCount,
-      is_active: body.isActive,
     },
   };
 }
@@ -146,9 +122,8 @@ Deno.serve(async (request) => {
       } else if (code) {
         builder = builder.eq("product_code", code);
       } else if (query) {
-        const keyword = escapeLikeValue(query);
         builder = builder.or(
-          `product_code.ilike.%${keyword}%,product_name.ilike.%${keyword}%`,
+          `product_code.ilike.%${query}%,product_name.ilike.%${query}%`,
         );
       }
 

@@ -1,18 +1,12 @@
 import { z } from "zod";
 
 export type ProductFormValues = {
-  description: string;
-  inventoryCount: string;
-  isActive: boolean;
   productCode: string;
   productName: string;
   unitPrice: string;
 };
 
 export type ProductInput = {
-  description: string;
-  inventoryCount: number;
-  isActive: boolean;
   productCode: string;
   productName: string;
   unitPrice: number;
@@ -57,19 +51,6 @@ export function parseCurrencyInput(value: string) {
 }
 
 const productFormSchema = z.object({
-  description: z.string().trim().max(300, "Mô tả tối đa 300 ký tự."),
-  inventoryCount: z
-    .string()
-    .trim()
-    .min(1, "Nhập số lượng tồn kho.")
-    .refine((value) => Number.isInteger(Number(value)), {
-      message: "Tồn kho phải là số nguyên.",
-    })
-    .transform(Number)
-    .refine((value) => value >= 0, {
-      message: "Tồn kho không được âm.",
-    }),
-  isActive: z.boolean(),
   productCode: z
     .string()
     .trim()
@@ -94,9 +75,6 @@ const productFormSchema = z.object({
 });
 
 export const emptyProductFormValues: ProductFormValues = {
-  description: "",
-  inventoryCount: "",
-  isActive: true,
   productCode: "",
   productName: "",
   unitPrice: "",
@@ -115,9 +93,6 @@ export function parseProductForm(
     return {
       data: null,
       errors: {
-        description: fieldErrors.description?.[0],
-        inventoryCount: fieldErrors.inventoryCount?.[0],
-        isActive: fieldErrors.isActive?.[0],
         productCode: fieldErrors.productCode?.[0],
         productName: fieldErrors.productName?.[0],
         unitPrice: fieldErrors.unitPrice?.[0],

@@ -46,9 +46,6 @@ const uniqueCode = `SP-${Date.now()}`;
 console.log(`Using test account: ${account.email}`);
 
 const created = await callProductsFunction(account.session, "POST", undefined, {
-  description: "Sản phẩm được tạo bởi smoke test Supabase.",
-  inventoryCount: 8,
-  isActive: true,
   productCode: uniqueCode,
   productName: "Gói quà thử nghiệm",
   unitPrice: 125000,
@@ -71,9 +68,6 @@ const updated = await callProductsFunction(
   "PATCH",
   { id: created.data.id },
   {
-    description: "Đã cập nhật từ smoke test.",
-    inventoryCount: 5,
-    isActive: false,
     productCode: uniqueCode,
     productName: "Gói quà smoke test",
     unitPrice: 99000,
@@ -82,7 +76,7 @@ const updated = await callProductsFunction(
 
 if (
   updated.data.product_name !== "Gói quà smoke test" ||
-  updated.data.inventory_count !== 5
+  updated.data.unit_price !== 99000
 ) {
   throw new Error("Cập nhật sản phẩm thất bại.");
 }

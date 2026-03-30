@@ -1,11 +1,11 @@
 "use client";
 
 import { getBrowserEnv } from "@/src/config/env";
-import { mapProductRow, type Product } from "@/src/domain/product";
+import { mapProductRow } from "@/src/domain/product";
 import type { ProductInput } from "@/src/domain/product.validation";
 import { mapFunctionError } from "@/src/lib/errors/mapSupabaseError";
 import { getBrowserSupabaseClient } from "@/src/lib/supabase/browser";
-import type { ProductRow } from "@/src/domain/product";
+import type { Product, ProductRow } from "@/src/domain/product";
 
 type ProductsFunctionResponse = {
   data: ProductRow[];
@@ -113,13 +113,11 @@ export async function deleteProduct(id: string) {
   });
 }
 
-export function sumInventory(products: Product[]) {
-  return products.reduce((total, product) => total + product.inventoryCount, 0);
-}
+export function getAverageProductPrice(products: Product[]) {
+  if (products.length === 0) {
+    return 0;
+  }
 
-export function sumCatalogValue(products: Product[]) {
-  return products.reduce(
-    (total, product) => total + product.unitPrice * product.inventoryCount,
-    0,
-  );
+  const total = products.reduce((sum, product) => sum + product.unitPrice, 0);
+  return total / products.length;
 }

@@ -36,14 +36,12 @@ try {
   await page.getByLabel("Mã sản phẩm").fill(productCode);
   await page.getByLabel("Tên sản phẩm").fill("Set quà giao diện");
   await page.getByLabel("Giá bán (VND)").fill("145000");
-  await page.getByLabel("Tồn kho").fill("12");
-  await page.getByLabel("Mô tả ngắn").fill("Sản phẩm được tạo từ Playwright.");
   await page.getByRole("button", { name: "Tạo sản phẩm" }).click();
 
   await page.waitForURL(/\/products(\?status=created)?$/);
   await page.getByText("Đã tạo sản phẩm thành công.").waitFor();
 
-  await page.getByPlaceholder("Tìm theo mã hoặc tên").fill(productCode);
+  await page.getByPlaceholder("Tìm theo mã hoặc tên sản phẩm").fill(productCode);
   await page.waitForLoadState("networkidle");
   await page.getByText(productCode, { exact: true }).first().waitFor();
 

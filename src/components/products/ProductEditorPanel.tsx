@@ -101,95 +101,32 @@ export function ProductEditorPanel({
           <FieldMessage message={errors.productName} />
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label
-              className="mb-2 block text-sm font-semibold text-forest"
-              htmlFor="product-price"
-            >
-              Giá bán (VND)
-            </label>
-            <span className="field-shell flex items-center gap-3">
-              <input
-                className="min-w-0 flex-1 bg-transparent outline-none"
-                id="product-price"
-                inputMode="numeric"
-                name="unitPrice"
-                onChange={(event) =>
-                  onChange("unitPrice", formatCurrencyInput(event.target.value))
-                }
-                placeholder="1.000.000"
-                required
-                value={values.unitPrice}
-              />
-              <span className="shrink-0 text-sm font-semibold uppercase tracking-[0.18em] text-muted">
-                VNĐ
-              </span>
-            </span>
-            <FieldMessage message={errors.unitPrice} />
-          </div>
-
-          <div>
-            <label
-              className="mb-2 block text-sm font-semibold text-forest"
-              htmlFor="product-inventory"
-            >
-              Tồn kho
-            </label>
-            <span className="field-shell block">
-              <input
-                className="w-full bg-transparent outline-none"
-                id="product-inventory"
-                inputMode="numeric"
-                name="inventoryCount"
-                onChange={(event) =>
-                  onChange("inventoryCount", event.target.value)
-                }
-                placeholder="48"
-                required
-                value={values.inventoryCount}
-              />
-            </span>
-            <FieldMessage message={errors.inventoryCount} />
-          </div>
-        </div>
-
         <div>
           <label
             className="mb-2 block text-sm font-semibold text-forest"
-            htmlFor="product-description"
+            htmlFor="product-price"
           >
-            Mô tả ngắn
+            Giá bán (VND)
           </label>
-          <span className="field-shell block">
-            <textarea
-              className="min-h-28 w-full resize-none bg-transparent outline-none"
-              id="product-description"
-              name="description"
-              onChange={(event) => onChange("description", event.target.value)}
-              placeholder="Ghi chú nổi bật để đội bán hàng nhận biết nhanh."
-              value={values.description}
+          <span className="field-shell flex items-center gap-3">
+            <input
+              className="min-w-0 flex-1 bg-transparent outline-none"
+              id="product-price"
+              inputMode="numeric"
+              name="unitPrice"
+              onChange={(event) =>
+                onChange("unitPrice", formatCurrencyInput(event.target.value))
+              }
+              placeholder="1.000.000"
+              required
+              value={values.unitPrice}
             />
+            <span className="shrink-0 text-sm font-semibold uppercase tracking-[0.18em] text-muted">
+              VNĐ
+            </span>
           </span>
-          <FieldMessage message={errors.description} />
+          <FieldMessage message={errors.unitPrice} />
         </div>
-
-        <label
-          className="flex items-center gap-3 rounded-[22px] border border-line bg-white/55 px-4 py-4"
-          htmlFor="product-active"
-        >
-          <input
-            checked={values.isActive}
-            className="h-4 w-4 accent-[var(--forest)]"
-            id="product-active"
-            name="isActive"
-            onChange={(event) => onChange("isActive", event.target.checked)}
-            type="checkbox"
-          />
-          <span className="text-sm font-semibold text-forest">
-            Đang kinh doanh
-          </span>
-        </label>
 
         {errors.form ? (
           <p className="rounded-[20px] border border-clay/20 bg-clay/8 px-4 py-3 text-sm text-clay">

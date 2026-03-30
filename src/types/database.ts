@@ -15,10 +15,7 @@ export type Database = {
       products: {
         Row: {
           created_at: string;
-          description: string | null;
           id: string;
-          inventory_count: number;
-          is_active: boolean;
           product_code: string;
           product_name: string;
           unit_price: number;
@@ -27,10 +24,7 @@ export type Database = {
         };
         Insert: {
           created_at?: string;
-          description?: string | null;
           id?: string;
-          inventory_count?: number;
-          is_active?: boolean;
           product_code: string;
           product_name: string;
           unit_price?: number;
@@ -39,10 +33,7 @@ export type Database = {
         };
         Update: {
           created_at?: string;
-          description?: string | null;
           id?: string;
-          inventory_count?: number;
-          is_active?: boolean;
           product_code?: string;
           product_name?: string;
           unit_price?: number;
